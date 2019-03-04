@@ -143,4 +143,13 @@ ProductsController.prototype.productsByCategory = function(request, reply) {
     }
 };
 
+// [GET] /products/import
+ProductsController.prototype.import = function(request, reply) {
+    try {
+        this.productsModel.import(request.payload.products, reply);
+    } catch (e) {
+        reply(Boom.notFound(e.message));
+    }
+};
+
 module.exports = ProductsController;

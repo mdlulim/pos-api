@@ -256,4 +256,10 @@ ProductsModel.prototype.getProductCategories = function(reply) {
     });
 };
 
+ProductsModel.prototype.import = function(products, reply) {
+    // sample code...
+    // replace with actual code...
+    reply({});
+};
+
 module.exports = ProductsModel;

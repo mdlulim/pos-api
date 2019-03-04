@@ -87,6 +87,19 @@ exports.register = function(server, options, next) {
                     })
                 }
             }
+        },
+        {
+            method: 'POST',
+            path: '/api/v1/products/import',
+            config: {
+                auth: false,
+                handler: productsController.import,
+                validate: {
+                    payload: Joi.object().keys({
+                        products: Joi.object().required()
+                    })
+                }
+            }
         }
     ]);
 
