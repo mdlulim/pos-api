@@ -144,13 +144,13 @@ TransactionsModel.prototype.getTransaction = function(id, reply) {
 };
 
 /**
- * Get a single transction
+ * Store transction
  * @param  {object}     data
  * @param  {function}   reply
  * @return {object}
  */
 TransactionsModel.prototype.storeTransaction = function(data, reply) {
-    // insert into transaction table
+    // insert transaction
     var that    = this;
     var columns = `invoice_no,invoice_prefix,customer_id,customer_group_id,firstname,lastname,email,telephone,fax,comment,total,transaction_status_id,user_id,date_added`;
     var values  = `'${data.invoice_no}','${data.invoice_prefix}',${data.customer_id},${data.customer_group_id},'${data.firstname}','${data.lastname}','${data.email}','${data.telephone}','${data.fax}','${data.comment}',${data.total},${status_id},${data.user_id},NOW()`;
@@ -188,6 +188,7 @@ TransactionsModel.prototype.storeTransaction = function(data, reply) {
                     if (error) {
                         throw error;
                     } else {
+                        
                         // insert transaction totals
                         var multiInsert = `INSERT INTO ${that.dbprefix}transaction_total VALUES`;
                         multiInsert += `(${transactionId},'total_items','Sub-Total',${totalItems},0),`;
@@ -201,14 +202,25 @@ TransactionsModel.prototype.storeTransaction = function(data, reply) {
                             if (error) {
                                 throw error;
                             } else {
-                                var response = {
-                                    status: 200,
-                                    error: false,
-                                    data: {
-                                        transaction_id: transactionId
+
+                                // insert transaction payment
+                                var columns = `transaction_id,payment_method,payment_code,payment_status_id,comment,date_added`;
+                                var values  = `${transactionId},'${data.payment_details.payment_method}','${data.payment_details.payment_code}',${data.payment_details.payment_status_id},'${data.payment_details.comment}',NOW()`;;
+                                connection.query(that.db.insert(`${that.dbprefix}transaction_payment`, columns, values),
+                                function (error, results, fields) {
+                                    if (error) {
+                                        throw error;
+                                    } else {
+                                        var response = {
+                                            status: 200,
+                                            error: false,
+                                            data: {
+                                                transaction_id: transactionId
+                                            }
+                                        };
+                                        reply(response);
                                     }
-                                };
-                                reply(response);
+                                });
                             }
                         });
                     }

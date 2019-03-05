@@ -83,7 +83,8 @@ exports.register = function(server, options, next) {
                         comment: Joi.string().allow('').allow(null).optional(),
                         total: Joi.number().integer().required(),
                         user_id: Joi.number().integer().required(),
-                        products: Joi.object().required()
+                        products: Joi.array().required(),
+                        payment_details: Joi.object().required()
                     })
                 }
             }
