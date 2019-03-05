@@ -1,8 +1,7 @@
 'use strict';
 
-const config = require('../config');
-const crypto = require('crypto');
-const MySQL = require('mysql');
+const config     = require('../config');
+const MySQL      = require('mysql');
 const connection = MySQL.createConnection({
     host: config.database.host,
     user: config.database.user,
@@ -15,29 +14,22 @@ connection.connect();
  * Model constructor
  * @param  {object}     database
  */
-function OrdersModel(database) {
-    this.db = database;
+function TransactionsModel(database) {
+    this.db         = database;
     this.company_id = 0;
-    this.start = 0;
-    this.limit = 0;
-    this.orderby = "";
-    this.sorting = "";
+    this.start      = 0;
+    this.limit      = 0;
+    this.orderby    = "";
+    this.sorting    = "";
+    this.dbprefix   = `${config.database.name}.${config.database.prefix}`;
 };
-
-/**
- * Set company id
- * @param  {number}     company_id
- */
-OrdersModel.prototype.setCompanyId = function(company_id) {
-    this.company_id = company_id;
-}
 
 /**
  * Set result limit. Define starting index and limit
  * @param  {number}     start
  * @param  {number}     limit
  */
-OrdersModel.prototype.setResultLimits = function(start, limit) {
+TransactionsModel.prototype.setResultLimits = function(start, limit) {
     this.start = start;
     this.limit = limit;
 }
@@ -47,288 +39,94 @@ OrdersModel.prototype.setResultLimits = function(start, limit) {
  * @param  {number}     orderby
  * @param  {number}     sorting
  */
-OrdersModel.prototype.setSortingOrder = function(orderby, sorting) {
+TransactionsModel.prototype.setSortingOrder = function(orderby, sorting) {
     this.orderby = orderby;
     this.sorting = sorting;
 }
 
 /**
- * Get orders
+ * Get transctions
  * @param  {function}   reply
  * @return {object}
  */
-OrdersModel.prototype.getOrders = function(reply) {
-    var that = this;
-    this.db.select(`companydb`);
-    this.db.from(`super.companies`);
-    this.db.where(`company_id=${this.company_id}`);
+TransactionsModel.prototype.getTransactions = function(reply) {
+    var select = `tr.*,tp.payment_method,tp.payment_code,tp.payment_status_id`;
+    this.db.select(select);
+    this.db.from(`${this.dbprefix}transaction tr`);
+    this.db.join(`${this.dbprefix}transaction_payment tp ON tp.transaction_id = tr.transaction_id`, `LEFT`);
+    this.db.order(this.orderby, this.sorting);
+    this.db.limit(this.start, this.limit);
     connection.query(this.db.get(),
     function (error, results, fields) {
         if (error) {
             throw error;
         } else {
-            if (results.length > 0) {
-                var dbname = results[0].companydb;
-                var select;
-                select  = `od.order_id,od.order_status_id,cs.salesrep_id,od.date_added,FORMAT(od.total,2) AS order_total,`
-                select += `cs.firstname AS customer_name,CONCAT(cc.first_name," ",cc.last_name) AS contact_name`;
-                that.db.select(select);
-                that.db.from(`${dbname}.oc_order od`);
-                that.db.join(`${dbname}.oc_customer cs ON cs.customer_id=od.customer_id`);
-                that.db.join(`${dbname}.oc_replogic_order_quote oq ON oq.order_id=od.order_id`, `LEFT`);
-                that.db.join(`${dbname}.oc_customer_contact cc ON cc.customer_con_id=oq.customer_contact_id`, `LEFT`);
-                that.db.where(`od.isReplogic=1`);
-                that.db.order(that.orderby, that.sorting);
-                that.db.limit(that.start, that.limit);
-                connection.query(that.db.get(),
-                function (error, results, fields) {
-                    if (error) {
-                        throw error;
-                    } else {
-                        var response = {
-                            status: 200,
-                            error: false,
-                            orders: results
-                        };
-                        reply(response);
-                    }
-                });
-            } else {
-                // company not found
-                var response = {
-                    status: 400,
-                    error: true,
-                    message: "Invalid company identifier"
-                };
-                reply(response);
-            }
+            var response = {
+                status: 200,
+                error: false,
+                transactions: results
+            };
+            reply(response);
         }
     });
 };
 
 /**
- * Find orders by property
+ * Find transctions by property
  * @param  {multitype}  prop
  * @param  {multitype}  value
  * @param  {function}   reply
  * @return {object}
  */
-OrdersModel.prototype.findOrderByProperty = function(prop, value, reply) {
+TransactionsModel.prototype.findTransactionByProperty = function(prop, value, reply) {
     var that = this;
-    this.db.select(`companydb`);
-    this.db.from(`super.companies`);
-    this.db.where(`company_id=${this.company_id}`);
+    var select = `tr.*,tp.payment_method,tp.payment_code,tp.payment_status_id`;
+    this.db.select(select);
+    this.db.from(`${this.dbprefix}transaction tr`);
+    this.db.join(`${this.dbprefix}transaction_payment tp ON tp.transaction_id = tr.transaction_id`, `LEFT`);
+    this.db.where(`${prop}='${value}'`);
+    this.db.order(this.orderby, this.sorting);
+    this.db.limit(this.start, this.limit);
     connection.query(this.db.get(),
     function (error, results, fields) {
         if (error) {
             throw error;
         } else {
-            if (results.length > 0) {
-                var dbname = results[0].companydb;
-                var select;
-                select  = `od.order_id,od.order_status_id,od.customer_id,`
-                select += `cs.firstname AS customer,cs.email,cs.telephone,CONCAT(ca.address_1," ",ca.address_2,", ",ca.city," ",ca.postcode) AS address,`;
-                select += `CONCAT(od.shipping_firstname," ",od.shipping_lastname) AS shipping_contact,`;
-                select += `CONCAT(od.shipping_address_1," ",od.shipping_address_2,", ",od.shipping_city," ",od.shipping_postcode) AS shipping_address,od.total,od.date_added,ot.code,ot.value`;
-                var where;
-                var selectCount = `COUNT(*) AS qty`;
-                var selectTotal = `FORMAT(COALESCE(SUM(od.total), 0), 2) AS total`;
-                if (`${prop}` === "status") {
-                    prop = "order_status_id";
-                }
-                if (`${value}`.toLowerCase() === "pending") {
-                    value = config.statuses.orders.pending;
-                }
-                if (`${value}`.toLowerCase() === "processing") {
-                    value = config.statuses.orders.processing;
-                }
-                if (`${value}`.toLowerCase() === "confirmed") {
-                    value = config.statuses.orders.confirmed;
-                }
-                if (`${value}`.toLowerCase() === "canceled" || `${value}`.toLowerCase() === "cancelled") {
-                    value = config.statuses.orders.cancelled;
-                }
-                switch (`${prop}`) {
-                    case "count":
-                        select = selectCount;
-                        where  = `od.isReplogic=1 AND od.order_status_id=${value} AND DATE_FORMAT(od.date_added,"%Y-%m")=DATE_FORMAT(NOW(),"%Y-%m")`;
-                        break;
 
-                    case "total":
-                        select = selectTotal;
-                        if (`${value}`.toLowerCase() === "current") {
-                            where = `od.isReplogic=1 AND DATE_FORMAT(od.date_added,"%Y-%m")=DATE_FORMAT(NOW(),"%Y-%m")`;
-                        } else {
-                            where = `od.isReplogic=1 AND od.order_status_id=${value} AND DATE_FORMAT(od.date_added,"%Y-%m")=DATE_FORMAT(NOW(),"%Y-%m")`;
-                        }
-                        break;
+            var response = {
+                status: 200,
+                error: false,
+                transactions: results
+            };
 
-                    default:
-                        where = `od.${prop}='${value}' AND od.isReplogic=1`;
-                        break;
-                }
-                that.db.select(select);
-                that.db.from(`${dbname}.oc_order_total ot, ${dbname}.oc_order od`);
-                that.db.join(`${dbname}.oc_customer cs ON cs.customer_id=od.customer_id`, `LEFT`);
-                that.db.join(`${dbname}.oc_address ca ON ca.address_id=cs.address_id`, `LEFT`);
-                that.db.where(where);
-                that.db.order(that.orderby, that.sorting);
-                that.db.limit(that.start, that.limit);
+            if (prop === 'tr.transaction_id') {
+                // get transaction products items
+                that.db.select(`tp.*`);
+                that.db.from(`${that.dbprefix}transaction_product tp`);
+                that.db.where(`tp.transaction_id='${value}'`);
                 connection.query(that.db.get(),
                 function (error, results, fields) {
                     if (error) {
                         throw error;
                     } else {
-                        var response = {
-                            status: 200,
-                            error: false,
-                            orders: results
-                        };
-                        reply(response);
-                    }
-                });
-            } else {
-                // company not found
-                var response = {
-                    status: 400,
-                    error: true,
-                    message: "Invalid company identifier"
-                };
-                reply(response);
-            }
-        }
-    });
-};
+                        response.products = results;
 
-/**
- * Get a single order
- * @param  {number}     id
- * @param  {function}   reply
- * @return {object}
- */
-OrdersModel.prototype.getOrder = function(id, reply) {
-    var that = this;
-    this.db.select(`companydb`);
-    this.db.from(`super.companies`);
-    this.db.where(`company_id=${this.company_id}`);
-    connection.query(this.db.get(),
-    function (error, results, fields) {
-        if (error) {
-            throw error;
-        } else {
-            if (results.length > 0) {
-                var dbname = results[0].companydb;
-                var select = ``;
-
-                // get order information
-                select += `od.order_id,od.order_status_id,od.customer_id,`;
-                select += `cs.firstname AS customer,cs.email,cs.telephone,CONCAT(ca.address_1," ",ca.address_2,", ",ca.city," ",ca.postcode) AS address,`;
-                select += `CONCAT(od.shipping_firstname," ",od.shipping_lastname) AS shipping_contact,`;
-                select += `CONCAT(od.shipping_address_1," ",od.shipping_address_2,", ",od.shipping_city," ",od.shipping_postcode) AS shipping_address,od.total,od.date_added,ot.code,ot.value,`;
-                select += `CONCAT(cc.first_name,' ',cc.last_name) AS contact_name, cc.email AS contact_email,`;
-                select += `gd.customer_group_id,gd.name AS contract_pricing`;
-                that.db.select(select);
-                that.db.from(`${dbname}.oc_order_total ot, ${dbname}.oc_order od`);
-                that.db.join(`${dbname}.oc_customer cs ON cs.customer_id=od.customer_id`, `LEFT`);
-                that.db.join(`${dbname}.oc_customer_group_description gd ON gd.customer_group_id=cs.customer_group_id`, `LEFT`);
-                that.db.join(`${dbname}.oc_address ca ON ca.address_id=cs.address_id`, `LEFT`);
-                that.db.join(`${dbname}.oc_replogic_order_quote oq ON oq.order_id=od.order_id`, `LEFT`);
-                that.db.join(`${dbname}.oc_customer_contact cc ON cc.customer_con_id=oq.customer_contact_id`, `LEFT`);
-                that.db.where(`od.order_id=${id} AND ot.order_id=${id} AND od.isReplogic=1`);
-                that.db.group(`od.order_id`);
-                that.db.limit(that.start, that.limit);
-                connection.query(that.db.get(),
-                function (error, results, fields) {
-                    if (error) {
-                        throw error;
-                    } else {
-                        const orders = [];
-                        if (results.length > 0) {
-                            var orderDetails              = {};
-                            orderDetails.order_id         = results[0].order_id;
-                            orderDetails.order_status_id  = results[0].order_status_id;
-                            orderDetails.customer_id      = results[0].customer_id;
-                            orderDetails.customer         = results[0].customer;
-                            orderDetails.date_added       = results[0].date_added;
-                            orderDetails.email            = results[0].email;
-                            orderDetails.telephone        = results[0].telephone;
-                            orderDetails.address          = results[0].address;
-                            orderDetails.shipping_contact = results[0].shipping_contact;
-                            orderDetails.shipping_address = results[0].shipping_address;
-                            orderDetails.contact_name     = results[0].contact_name;
-                            orderDetails.contact_email    = results[0].contact_email;
-                            orderDetails.customer_group_id= results[0].customer_group_id;
-                            orderDetails.contract_pricing = results[0].contract_pricing;
-                            for (var i=0; i<results.length; i++) {
-                                if (results[i].code !== "shipping") {
-                                    if (results[i].code === "tax") {
-                                        orderDetails.vat = results[i].value;
-                                    } else {
-                                        orderDetails[results[i].code] = results[i].value;
-                                    }
-                                } else orderDetails.shipping_rate = results[i].value;
-                            }
-                            orderDetails.total_excl_vat = (orderDetails.vat !== undefined) ? orderDetails.total - orderDetails.vat : orderDetails.total;
-                            orderDetails.total          = results[0].total;
-                            orders[0]                   = orderDetails;
-                        }
-
-                        // get order lines/products
-                        that.db.select(`op.product_id,op.name,op.model,op.quantity,op.price,op.total,op.tax,pr.sku,${that.getProductImageSrc('pr.image', 'rs.store_url')}`);
-                        that.db.from(`${dbname}.oc_order_product op`);
-                        that.db.join(`${dbname}.oc_product pr ON pr.product_id=op.product_id`);
-                        that.db.join(`${dbname}.oc_rep_settings rs ON rs.company_id=${that.company_id}`, `LEFT`);
-                        that.db.where(`op.order_id=${id}`);
+                        // get transaction totals
+                        that.db.select(`tt.*`);
+                        that.db.from(`${that.dbprefix}transaction_total tt`);
+                        that.db.where(`tt.transaction_id='${value}'`);
                         connection.query(that.db.get(),
                         function (error, results, fields) {
                             if (error) {
                                 throw error;
                             } else {
-                                var order_lines = results;
-
-                                // get order totals
-                                that.db.select(`*`);
-                                that.db.from(`${dbname}.oc_order_total`);
-                                that.db.where(`order_id=${id}`);
-                                connection.query(that.db.get(),
-                                function (error, results, fields) {
-                                    if (error) {
-                                        throw error;
-                                    } else {
-                                        var order_totals = [];
-                                        if (results.length > 0) {
-                                            for (var i=0; i<results.length; i++) {
-                                                order_totals.push({
-                                                    order_total_id : results[i].order_total_id,
-                                                    order_id       : results[i].order_id,
-                                                    code           : results[i].code,
-                                                    title          : (results[i].code == 'shipping') ? 'Shipping:' : results[i].title,
-                                                    value          : results[i].value,
-                                                    sort_order     : results[i].sort_order
-                                                });
-                                            }
-                                        }
-                                        var response = {
-                                            status: 200,
-                                            error: false,
-                                            orders: orders,
-                                            order_lines: order_lines,
-                                            order_totals: order_totals
-                                        }
-                                        reply(response);
-                                    }
-                                });
+                                response.totals = results;
+                                reply(response);
                             }
                         });
                     }
                 });
             } else {
-                // company not found
-                var response = {
-                    status: 400,
-                    error: true,
-                    message: "Invalid company identifier"
-                };
                 reply(response);
             }
         }
@@ -336,11 +134,88 @@ OrdersModel.prototype.getOrder = function(id, reply) {
 };
 
 /**
- * Get product image path
- * @param  {number}     group
+ * Get a single transction
+ * @param  {number}     id
+ * @param  {function}   reply
+ * @return {object}
  */
-OrdersModel.prototype.getProductImageSrc = function(img, store_url) {
-    return `IF(${img}="","",CONCAT(${store_url}, "image/",${img})) AS product_image_src`;
-}
+TransactionsModel.prototype.getTransaction = function(id, reply) {
+    this.findTransactionByProperty('tr.transaction_id', id, reply);
+};
 
-module.exports = OrdersModel;
+/**
+ * Get a single transction
+ * @param  {object}     data
+ * @param  {function}   reply
+ * @return {object}
+ */
+TransactionsModel.prototype.storeTransaction = function(data, reply) {
+    // insert into transaction table
+    var that    = this;
+    var columns = `invoice_no,invoice_prefix,customer_id,customer_group_id,firstname,lastname,email,telephone,fax,comment,total,transaction_status_id,user_id,date_added`;
+    var values  = `'${data.invoice_no}','${data.invoice_prefix}',${data.customer_id},${data.customer_group_id},'${data.firstname}','${data.lastname}','${data.email}','${data.telephone}','${data.fax}','${data.comment}',${data.total},${status_id},${data.user_id},NOW()`;
+    connection.query(this.db.insert(`${this.dbprefix}transaction`, columns, values),
+    function (error, results, fields) {
+        if (error) {
+            throw error;
+        } else {
+            
+            const transactionId = results.insertId;
+
+            // insert transaction products
+            if (data.cart.length) {
+                const subTotal   = 0;
+                const totalTax   = 0;
+                const total      = 0;
+                const discount   = 0;
+                const totalItems = 0;
+
+                var multiInsert = `INSERT INTO ${that.dbprefix}transaction_product VALUES`;
+                var first       = true;
+                for (var i=0; i<data.products.length; i++) {
+                    multiInsert += (first) ? `` : `,`;
+                    multiInsert += `(${transactionId},${data.products[i].product_id},'${data.products[i].name}',${data.products[i].quantity},'',${data.products[i].price},${data.products[i].total},${data.products[i].tax},0)`;
+                    first        = false;
+                    subTotal    += data.products[i].price;
+                    totalTax    += data.products[i].tax;
+                    total       += data.products[i].total;
+                    totalItems  += data.products[i].quantity;
+                }
+                multiInsert += `;`;
+                that.db.set(multiInsert);
+                connection.query(that.db.get(),
+                function (error, results, fields) {
+                    if (error) {
+                        throw error;
+                    } else {
+                        // insert transaction totals
+                        var multiInsert = `INSERT INTO ${that.dbprefix}transaction_total VALUES`;
+                        multiInsert += `(${transactionId},'total_items','Sub-Total',${totalItems},0),`;
+                        multiInsert += `(${transactionId},'discount','Sub-Total',${discount},1),`;
+                        multiInsert += `(${transactionId},'sub_total','Sub-Total',${subTotal},2),`;
+                        multiInsert += `(${transactionId},'tax','VAT (15%)',${totalTax},3),`;
+                        multiInsert += `(${transactionId},'total','Total',${total},4);`;
+                        that.db.set(multiInsert);
+                        connection.query(that.db.get(),
+                        function (error, results, fields) {
+                            if (error) {
+                                throw error;
+                            } else {
+                                var response = {
+                                    status: 200,
+                                    error: false,
+                                    data: {
+                                        transaction_id: transactionId
+                                    }
+                                };
+                                reply(response);
+                            }
+                        });
+                    }
+                });
+            }
+        }
+    });
+};
+
+module.exports = TransactionsModel;
