@@ -62,6 +62,8 @@ VehiclesModel.prototype.getVehicles = function(reply) {
     this.db.select(`cv.*,CONCAT(cs.firstname,' ',cs.lastname) AS driver_name`);
     this.db.from(`${this.dbprefix}vehicle cv`);
     this.db.join(`${this.dbprefix}customer cs ON cs.customer_id = cv.customer_id`);
+    this.db.order(this.orderby, this.sorting);
+    this.db.limit(this.start, this.limit);
     connection.query(this.db.get(),
     function (error, results, fields) {
         if (error) {
@@ -75,6 +77,45 @@ VehiclesModel.prototype.getVehicles = function(reply) {
             reply(response);
         }
     });
+};
+
+/**
+ * Find vehicles by property
+ * @param  {multitype}  prop
+ * @param  {multitype}  value
+ * @param  {function}   reply
+ * @return {object}
+ */
+VehiclesModel.prototype.findVehicleByProperty = function(prop, value, reply) {
+    this.db.select(`cv.*,CONCAT(cs.firstname,' ',cs.lastname) AS driver_name`);
+    this.db.from(`${this.dbprefix}vehicle cv`);
+    this.db.join(`${this.dbprefix}customer cs ON cs.customer_id = cv.customer_id`);
+    this.db.where(`cv.${prop} = '${value}'`);
+    this.db.order(this.orderby, this.sorting);
+    this.db.limit(this.start, this.limit);
+    connection.query(this.db.get(),
+    function (error, results, fields) {
+        if (error) {
+            throw error;
+        } else {
+            var response = {
+                status: 200,
+                error: false,
+                vehicles: results
+            };
+            reply(response);
+        }
+    });
+};
+
+/**
+ * Get single vehicle by id
+ * @param  {number}     id
+ * @param  {function}   reply
+ * @return {object}
+ */
+VehiclesModel.prototype.getVehicle = function(id, reply) {
+    this.findVehicleByProperty('vehicle_id', id, reply);
 };
 
 /**

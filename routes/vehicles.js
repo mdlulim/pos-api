@@ -33,6 +33,19 @@ exports.register = function(server, options, next) {
             }
         },
         {
+            method: 'GET',
+            path: '/api/v1/vehicles/{id}',
+            config: {
+                auth: false,
+                handler: vehiclesController.show,
+                validate: {
+                    params: Joi.object().keys({
+                        id: Joi.number().required()
+                    })
+                }
+            }
+        },
+        {
             method : 'POST',
             path   : '/api/v1/vehicles',
             config : {

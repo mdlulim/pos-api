@@ -33,6 +33,15 @@ VehicleController.prototype.index = function(request, reply) {
     this.vehiclesModel.getVehicles(reply);
 };
 
+// [GET] /vehicles/{id}
+VehicleController.prototype.index = function(request, reply) {
+    try {
+        this.vehiclesModel.getVehicle(request.params.id, reply);
+    } catch (e) {
+        reply(Boom.badRequest(e.message));
+    }
+};
+
 // [POST] /vehicles
 VehicleController.prototype.store = function(request, reply) {
     try {
