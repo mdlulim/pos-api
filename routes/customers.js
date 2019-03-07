@@ -36,6 +36,7 @@ exports.register = function(server, options, next) {
             method : 'GET',
             path   : '/api/v1/customers/{id}',
             config : {
+                auth: false,
                 handler  : customersController.show,
                 validate : {
                     params : {

@@ -36,27 +36,6 @@ CustomersController.prototype.index = function(request, reply) {
 // [GET] /customers/{id}
 CustomersController.prototype.show = function(request, reply) {
     try {
-
-        var start   = request.query.start;
-        var limit   = request.query.limit;
-        var orderby = request.query.orderby;
-        var sorting = request.query.sorting;
-    
-        if (start == null) {
-            start = 0
-        }
-        if (limit == null) {
-            limit = 0
-        }
-        if (orderby == null) {
-            orderby = "";
-        }
-        if (sorting == null) {
-            sorting = "";
-        }
-
-        this.customersModel.setResultLimits(start, limit);
-        this.customersModel.setSortingOrder(orderby, sorting);
         this.customersModel.getCustomer(request.params.id, reply);
     } catch (e) {
         reply(Boom.notFound(e.message));

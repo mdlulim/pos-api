@@ -85,12 +85,18 @@ CustomersModel.prototype.getCustomers = function(reply) {
  * @return {object}
  */
 CustomersModel.prototype.findCustomerByProperty = function(prop, value, reply) {
-    this.db.select(`cs.*,cg.name AS customer_group`);
+    var select = ``;
+    select += `cs.*,cg.name AS customer_group,`;
+    select += `ca.address_1,ca.address_2,ca.city,ca.postcode,ca.country_id,ca.zone_id,`;
+    select += `ac.name AS country_name`;
+    this.db.select(select);
     this.db.from(`${this.dbprefix}customer cs`);
     this.db.join(`${this.dbprefix}customer_group cg ON cg.customer_group_id = cs.customer_group_id`);
+    this.db.join(`${this.dbprefix}address ca ON ca.address_id = cs.address_id`, `LEFT`);
+    this.db.join(`${this.dbprefix}country ac ON ac.country_id = ca.country_id`, `LEFT`);
     this.db.where(`cs.${prop} = '${value}'`);
-    that.db.order(this.orderby, this.sorting);
-    that.db.limit(this.start, this.limit);
+    this.db.order(this.orderby, this.sorting);
+    this.db.limit(this.start, this.limit);
     connection.query(this.db.get(),
     function (error, results, fields) {
         if (error) {
@@ -195,16 +201,6 @@ CustomersModel.prototype.addCustomer = function(customer, reply) {
             reply(response);
         }
     });
-};
-
-/**
- * Get a single customer
- * @param  {number}     id
- * @param  {function}   reply
- * @return {object}
- */
-CustomersModel.prototype.getCustomer = function(id, reply) {
-    this.findCustomerByProperty('cs.customer_id', id, reply);
 };
 
 /**
