@@ -132,20 +132,18 @@ exports.register = function(server, options, next) {
             method : 'POST',
             path   : '/api/v1/customers',
             config : {
+                auth: false,
                 handler  : customersController.store,
                 validate : {
                     payload : Joi.object().keys({
-                        name         : Joi.string().required(),
-                        email        : Joi.string().email().required(),
-                        telephone    : Joi.string().required(),
-                        fax          : Joi.string().allow('').allow('').allow(null).optional(),
-                        address_1    : Joi.string().required(),
-                        address_2    : Joi.string().allow('').allow('').allow(null).optional(),
-                        city         : Joi.string().required(),
-                        postcode     : Joi.string().required(),
-                        province     : Joi.string().allow('').allow('').allow(null).optional(),
-                        region_id    : Joi.number().integer().required(),
-                        country_id   : Joi.number().integer().required()
+                        type        : Joi.string().required(),
+                        firstname   : Joi.string().required(),
+                        lastname    : Joi.string().required(),
+                        email       : Joi.string().email().allow('').allow(null).optional(),
+                        telephone   : Joi.string().required(),
+                        fax         : Joi.string().allow('').allow(null).optional(),
+                        id_type     : Joi.string().required(),
+                        id_number   : Joi.string().required()
                     })
                 }
             }
