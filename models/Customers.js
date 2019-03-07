@@ -185,7 +185,7 @@ CustomersModel.prototype.getCustomerVehicles = function(id, reply) {
 CustomersModel.prototype.addCustomer = function(customer, reply) {
     var columns  = `customer_group_id,language_id,firstname,lastname,email,telephone,fax,id_type,id_number,date_added`;
     var values   = `${customer.type},1,'${customer.firstname}','${customer.lastname}','${customer.email}','${customer.telephone}','${customer.fax}','${customer.id_type}','${customer.id_number}', NOW()`;
-    connection.query(this.db.insert(`${dbprefix}customer`, columns, values),
+    connection.query(this.db.insert(`${this.dbprefix}customer`, columns, values),
     function (error, results, fields) {
         if (error) {
             throw error;
