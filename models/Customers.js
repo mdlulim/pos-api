@@ -52,7 +52,7 @@ CustomersModel.prototype.setSortingOrder = function(orderby, sorting) {
  */
 CustomersModel.prototype.getCustomers = function(reply) {
     var select = ``;
-    select += `cs.*,cg.name AS customer_group,`;
+    select += `cs.*,CONCAT(cs.firstname,' ',cs.lastname) AS fullname,cg.name AS customer_group,`;
     select += `ca.address_1,ca.address_2,ca.city,ca.postcode,ca.country_id,ca.zone_id,`;
     select += `ac.name AS country_name`;
     this.db.select(select);
@@ -86,7 +86,7 @@ CustomersModel.prototype.getCustomers = function(reply) {
  */
 CustomersModel.prototype.findCustomerByProperty = function(prop, value, reply) {
     var select = ``;
-    select += `cs.*,cg.name AS customer_group,`;
+    select += `cs.*,CONCAT(cs.firstname,' ',cs.lastname) AS fullname,cg.name AS customer_group,`;
     select += `ca.address_1,ca.address_2,ca.city,ca.postcode,ca.country_id,ca.zone_id,`;
     select += `ac.name AS country_name`;
     this.db.select(select);
