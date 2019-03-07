@@ -1,7 +1,6 @@
 'use strict';
 
 const Boom = require('boom');
-const Bcrypt = require('bcrypt-nodejs');
 const UsersModel = require('../models/Users');
 
 function UsersController(database) {

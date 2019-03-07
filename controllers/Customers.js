@@ -1,7 +1,6 @@
 'use strict';
 
 const Boom           = require('boom');
-const Bcrypt         = require('bcrypt-nodejs');
 const CustomersModel = require('../models/Customers');
 
 function CustomersController(database) {
@@ -215,10 +214,7 @@ CustomersController.prototype.store = function(request, reply) {
         values.safe              = 0;
         values.token             = "";
         values.code              = "";
-
-        // password encryption
-        values.salt     = Bcrypt.genSaltSync();
-        values.password = Bcrypt.hashSync(password, values.salt);
+        
         this.customersModel.addCustomer(values, reply);
     } catch (e) {
         reply(Boom.badRequest(e.message));

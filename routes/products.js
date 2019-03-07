@@ -3,7 +3,7 @@
 // Appointments routes
 var Joi                = require('joi');
 var config             = require('../config');
-var ProductsController = require('../controllers/products');
+var ProductsController = require('../controllers/Products');
 
 exports.register = function(server, options, next) {
     // Setup the controller

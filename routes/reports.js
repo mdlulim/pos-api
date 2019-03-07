@@ -3,7 +3,7 @@
 // Reports routes
 var Joi               = require('joi');
 var config            = require('../config');
-var ReportsController = require('../controllers/reports');
+var ReportsController = require('../controllers/Reports');
 
 exports.register = function(server, options, next) {
     // Setup the controller
@@ -20,6 +20,7 @@ exports.register = function(server, options, next) {
             method: 'GET',
             path: '/api/v1/reports',
             config: {
+                auth: false,
                 handler: reportsController.index,
                 validate: {
                     query: Joi.object().keys({
@@ -35,6 +36,7 @@ exports.register = function(server, options, next) {
             method: 'GET',
             path: '/api/v1/reports/{id}',
             config: {
+                auth: false,
                 handler: reportsController.getReportById,
                 validate: {
                     params: Joi.object().keys({

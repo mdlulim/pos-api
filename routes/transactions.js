@@ -3,7 +3,7 @@
 // Transactions routes
 var Joi                    = require('joi');
 var config                 = require('../config');
-var TransactionsController = require('../controllers/transactions');
+var TransactionsController = require('../controllers/Transactions');
 
 exports.register = function(server, options, next) {
     // Setup the controller

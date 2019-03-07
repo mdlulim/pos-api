@@ -3,7 +3,7 @@
 // Transactions routes
 var Joi                = require('joi');
 var config             = require('../config');
-var VehiclesController = require('../controllers/vehicles');
+var VehiclesController = require('../controllers/Vehicles');
 
 exports.register = function(server, options, next) {
     // Setup the controller

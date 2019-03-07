@@ -1,7 +1,7 @@
 'use strict';
 
 const Boom          = require('boom');
-const ProductsModel = require('../models/products');
+const ProductsModel = require('../models/Products');
 
 function ProductsController(database) {
     this.productsModel = new ProductsModel(database);
