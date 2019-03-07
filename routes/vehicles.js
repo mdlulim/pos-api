@@ -31,6 +31,27 @@ exports.register = function(server, options, next) {
                     })
                 }
             }
+        },
+        {
+            method : 'POST',
+            path   : '/api/v1/vehicles',
+            config : {
+                auth: false,
+                handler  : vehiclesController.store,
+                validate : {
+                    payload : Joi.object().keys({
+                        customer_id     : Joi.number().integer().required(),
+                        drivers_license : Joi.string().required(),
+                        reg_number      : Joi.string().required(),
+                        make            : Joi.string().required(),
+                        model           : Joi.string().required(),
+                        style           : Joi.string().allow('').allow(null).optional(),
+                        colour          : Joi.string().required(),
+                        vin_number      : Joi.string().allow('').allow(null).optional(),
+                        options         : Joi.string().allow('').allow(null).optional()
+                    })
+                }
+            }
         }
     ]);
 

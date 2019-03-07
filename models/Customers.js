@@ -194,7 +194,7 @@ CustomersModel.prototype.addCustomer = function(customer, reply) {
             var response = {
                 status: 200,
                 error: false,
-                message: "New customer successfully created!",
+                message: "New customer successfully added!",
                 customer: {
                     customer_id: results.insertId
                 }

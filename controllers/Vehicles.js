@@ -7,7 +7,7 @@ function VehicleController(database) {
     this.vehiclesModel = new VehiclesModel(database);
 };
 
-// [GET] /{company_id}/vehicles
+// [GET] /vehicles
 VehicleController.prototype.index = function(request, reply) {
 
     var start = request.query.start;
@@ -31,6 +31,15 @@ VehicleController.prototype.index = function(request, reply) {
     this.vehiclesModel.setResultLimits(start, limit);
     this.vehiclesModel.setSortingOrder(orderby, sorting);
     this.vehiclesModel.getVehicles(reply);
+};
+
+// [POST] /vehicles
+VehicleController.prototype.store = function(request, reply) {
+    try {
+        this.vehiclesModel.addVehicle(request.payload, reply);
+    } catch (e) {
+        reply(Boom.badRequest(e.message));
+    }
 };
 
 module.exports = VehicleController;

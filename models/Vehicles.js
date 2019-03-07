@@ -54,7 +54,7 @@ VehiclesModel.prototype.setSortingOrder = function(orderby, sorting) {
 }
 
 /**
- * Get customers
+ * Get vehicles
  * @param  {function}   reply
  * @return {object}
  */
@@ -71,6 +71,36 @@ VehiclesModel.prototype.getVehicles = function(reply) {
                 status: 200,
                 error: false,
                 vehicles: results
+            };
+            reply(response);
+        }
+    });
+};
+
+/**
+ * Create new vehicle
+ * @param {object}      vehicle
+ * @param {function}    reply
+ * @return {object}
+ */
+VehiclesModel.prototype.addVehicle = function(vehicle, reply) {
+    var style      = (vehicle.style == 'undefined') ? '' : vehicle.style;
+    var options    = (vehicle.options == 'undefined') ? '' : vehicle.options;
+    var vin_number = (vehicle.vin_number == 'undefined') ? '' : vehicle.vin_number;
+    var columns    = `customer_id,drivers_license,reg_number,make,model,style,colour,vin_number,options,date_added`;
+    var values     = `${vehicle.customer_id},'${vehicle.drivers_license}','${vehicle.reg_number}','${vehicle.make}','${vehicle.model}','${style}','${vehicle.colour}','${vin_number}','${options}', NOW()`;
+    connection.query(this.db.insert(`${this.dbprefix}vehicle`, columns, values),
+    function (error, results, fields) {
+        if (error) {
+            throw error;
+        } else {
+            var response = {
+                status: 200,
+                error: false,
+                message: "New vehicle successfully added!",
+                vehicle: {
+                    vehicle_id: results.insertId
+                }
             };
             reply(response);
         }

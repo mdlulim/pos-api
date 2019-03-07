@@ -158,16 +158,14 @@ exports.register = function(server, options, next) {
                         id : Joi.number().integer().required()
                     },
                     payload : Joi.object().keys({
-                        email       : Joi.string().email().required(),
+                        type        : Joi.string().required(),
+                        firstname   : Joi.string().required(),
+                        lastname    : Joi.string().required(),
+                        email       : Joi.string().email().allow('').allow(null).optional(),
                         telephone   : Joi.string().required(),
                         fax         : Joi.string().allow('').allow(null).optional(),
-                        address_id  : Joi.number().integer().required(),
-                        address_1   : Joi.string().required(),
-                        address_2   : Joi.string().allow('').allow(null).optional(),
-                        city        : Joi.string().required(),
-                        postcode    : Joi.string().required(),
-                        region_id   : Joi.number().integer().required(),
-                        country_id  : Joi.number().integer().required()
+                        id_type     : Joi.string().required(),
+                        id_number   : Joi.string().required()
                     })
                 }
             }
