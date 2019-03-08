@@ -67,23 +67,18 @@ exports.register = function(server, options, next) {
         },
         {
             method: 'POST',
-            path: '/api/v1/transctions',
+            path: '/api/v1/transactions',
             config: {
                 auth: false,
                 handler: transactionsController.store,
                 validate: {
                     payload: Joi.object().keys({
-                        customer_id: Joi.number().integer().required(),
-                        customer_group_id: Joi.number().integer().required(),
-                        firstname: Joi.string().required(),
-                        lastname: Joi.string().required(),
-                        email: Joi.string().email().required(),
-                        telephone: Joi.string().min(10).required(),
-                        fax: Joi.string().min(10).allow('').allow(null).optional(),
-                        comment: Joi.string().allow('').allow(null).optional(),
-                        total: Joi.number().integer().required(),
-                        user_id: Joi.number().integer().required(),
+                        invoice_no: Joi.string().required(),
+                        customer: Joi.object().required(),
+                        vehicle: Joi.object().required(),
                         products: Joi.array().required(),
+                        totals: Joi.object().required(),
+                        user_id: Joi.number().integer().required(),
                         payment_details: Joi.object().required()
                     })
                 }
