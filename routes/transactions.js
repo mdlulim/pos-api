@@ -74,12 +74,14 @@ exports.register = function(server, options, next) {
                 validate: {
                     payload: Joi.object().keys({
                         invoice_no: Joi.string().required(),
+                        transaction_status_id: Joi.number().integer().required(),
                         customer: Joi.object().required(),
                         vehicle: Joi.object().required(),
                         products: Joi.array().required(),
                         totals: Joi.object().required(),
                         user_id: Joi.number().integer().required(),
-                        payment_details: Joi.object().required()
+                        payment_details: Joi.object().required(),
+                        comment: Joi.string().allow('').allow(null).optional()
                     })
                 }
             }

@@ -153,7 +153,7 @@ TransactionsModel.prototype.storeTransaction = function(data, reply) {
     // insert transaction
     var that    = this;
     var columns = `invoice_no,invoice_prefix,customer_id,customer_group_id,firstname,lastname,email,telephone,fax,comment,total,transaction_status_id,user_id,date_added`;
-    var values  = `'${data.invoice_no}','${config.invoice_prefix}',${data.customer.customer_id},${data.customer.customer_group_id},'${data.customer.firstname}','${data.customer.lastname}','${data.customer.email}','${data.customer.telephone}','${data.customer.fax}','${data.comment}',${data.total},${status_id},${data.user_id},NOW()`;
+    var values  = `'${data.invoice_no}','${config.invoice_prefix}',${data.customer.customer_id},${data.customer.customer_group_id},'${data.customer.firstname}','${data.customer.lastname}','${data.customer.email}','${data.customer.telephone}','${data.customer.fax}','${data.comment}',${data.totals.total},${data.transaction_status_id},${data.user_id},NOW()`;
     connection.query(this.db.insert(`${this.dbprefix}transaction`, columns, values),
     function (error, results, fields) {
         if (error) {
