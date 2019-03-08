@@ -26,7 +26,8 @@ const config = {
 			complete  : 3,
 			cancelled : 2
 		}
-	}
+	},
+	invoice_prefix: 'EWL-'
 }
 
 module.exports = config;

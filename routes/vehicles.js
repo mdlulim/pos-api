@@ -54,6 +54,7 @@ exports.register = function(server, options, next) {
                 validate : {
                     payload : Joi.object().keys({
                         customer_id     : Joi.number().integer().required(),
+                        driver_name     : Joi.string().required(),
                         drivers_license : Joi.string().required(),
                         reg_number      : Joi.string().required(),
                         make            : Joi.string().required(),

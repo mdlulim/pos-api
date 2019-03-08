@@ -153,7 +153,7 @@ TransactionsModel.prototype.storeTransaction = function(data, reply) {
     // insert transaction
     var that    = this;
     var columns = `invoice_no,invoice_prefix,customer_id,customer_group_id,firstname,lastname,email,telephone,fax,comment,total,transaction_status_id,user_id,date_added`;
-    var values  = `'${data.invoice_no}','${data.invoice_prefix}',${data.customer_id},${data.customer_group_id},'${data.firstname}','${data.lastname}','${data.email}','${data.telephone}','${data.fax}','${data.comment}',${data.total},${status_id},${data.user_id},NOW()`;
+    var values  = `'${data.invoice_no}','${config.invoice_prefix}',${data.customer.customer_id},${data.customer.customer_group_id},'${data.customer.firstname}','${data.customer.lastname}','${data.customer.email}','${data.customer.telephone}','${data.customer.fax}','${data.comment}',${data.total},${status_id},${data.user_id},NOW()`;
     connection.query(this.db.insert(`${this.dbprefix}transaction`, columns, values),
     function (error, results, fields) {
         if (error) {
@@ -164,22 +164,12 @@ TransactionsModel.prototype.storeTransaction = function(data, reply) {
 
             // insert transaction products
             if (data.cart.length) {
-                const subTotal   = 0;
-                const totalTax   = 0;
-                const total      = 0;
-                const discount   = 0;
-                const totalItems = 0;
-
                 var multiInsert = `INSERT INTO ${that.dbprefix}transaction_product VALUES`;
                 var first       = true;
                 for (var i=0; i<data.products.length; i++) {
                     multiInsert += (first) ? `` : `,`;
                     multiInsert += `(${transactionId},${data.products[i].product_id},'${data.products[i].name}',${data.products[i].quantity},'',${data.products[i].price},${data.products[i].total},${data.products[i].tax},0)`;
                     first        = false;
-                    subTotal    += data.products[i].price;
-                    totalTax    += data.products[i].tax;
-                    total       += data.products[i].total;
-                    totalItems  += data.products[i].quantity;
                 }
                 multiInsert += `;`;
                 that.db.set(multiInsert);
@@ -191,11 +181,11 @@ TransactionsModel.prototype.storeTransaction = function(data, reply) {
                         
                         // insert transaction totals
                         var multiInsert = `INSERT INTO ${that.dbprefix}transaction_total VALUES`;
-                        multiInsert += `(${transactionId},'total_items','Sub-Total',${totalItems},0),`;
-                        multiInsert += `(${transactionId},'discount','Sub-Total',${discount},1),`;
-                        multiInsert += `(${transactionId},'sub_total','Sub-Total',${subTotal},2),`;
-                        multiInsert += `(${transactionId},'tax','VAT (15%)',${totalTax},3),`;
-                        multiInsert += `(${transactionId},'total','Total',${total},4);`;
+                        multiInsert += `(${transactionId},'total_items','Total Items',${data.totals.item_qty},0),`;
+                        multiInsert += `(${transactionId},'discount','Discount',${data.totals.discount},1),`;
+                        multiInsert += `(${transactionId},'sub_total','Sub-Total',${data.totals.subtotal},2),`;
+                        multiInsert += `(${transactionId},'tax','VAT (15%)',${data.totals.tax},3),`;
+                        multiInsert += `(${transactionId},'total','Total',${data.totals.total},4);`;
                         that.db.set(multiInsert);
                         connection.query(that.db.get(),
                         function (error, results, fields) {
