@@ -163,12 +163,12 @@ TransactionsModel.prototype.storeTransaction = function(data, reply) {
             const transactionId = results.insertId;
 
             // insert transaction products
-            if (data.cart.length) {
-                var multiInsert = `INSERT INTO ${that.dbprefix}transaction_product VALUES`;
+            if (data.products.length) {
+                var multiInsert = `INSERT INTO ${that.dbprefix}transaction_product (transaction_id,product_id,name,quantity,price,total,tax) VALUES`;
                 var first       = true;
                 for (var i=0; i<data.products.length; i++) {
                     multiInsert += (first) ? `` : `,`;
-                    multiInsert += `(${transactionId},${data.products[i].product_id},'${data.products[i].name}',${data.products[i].quantity},'',${data.products[i].price},${data.products[i].total},${data.products[i].tax},0)`;
+                    multiInsert += `(${transactionId},${data.products[i].product_id},'${data.products[i].name}',${data.products[i].quantity},${data.products[i].price},${data.products[i].total},${data.products[i].tax})`;
                     first        = false;
                 }
                 multiInsert += `;`;
@@ -180,7 +180,7 @@ TransactionsModel.prototype.storeTransaction = function(data, reply) {
                     } else {
                         
                         // insert transaction totals
-                        var multiInsert = `INSERT INTO ${that.dbprefix}transaction_total VALUES`;
+                        var multiInsert = `INSERT INTO ${that.dbprefix}transaction_total (transaction_id,code,title,value,sort_order) VALUES`;
                         multiInsert += `(${transactionId},'total_items','Total Items',${data.totals.item_qty},0),`;
                         multiInsert += `(${transactionId},'discount','Discount',${data.totals.discount},1),`;
                         multiInsert += `(${transactionId},'sub_total','Sub-Total',${data.totals.subtotal},2),`;
