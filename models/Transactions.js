@@ -54,7 +54,7 @@ TransactionsModel.prototype.getTransactions = function(reply) {
     this.db.select(select);
     this.db.from(`${this.dbprefix}transaction tr`);
     this.db.join(`${this.dbprefix}transaction_payment tp ON tp.transaction_id = tr.transaction_id`, `LEFT`);
-    this.db.order(this.orderby, this.sorting);
+    this.db.order(`tr.transaction_id`, `DESC`);
     this.db.limit(this.start, this.limit);
     connection.query(this.db.get(),
     function (error, results, fields) {
@@ -85,7 +85,7 @@ TransactionsModel.prototype.findTransactionByProperty = function(prop, value, re
     this.db.from(`${this.dbprefix}transaction tr`);
     this.db.join(`${this.dbprefix}transaction_payment tp ON tp.transaction_id = tr.transaction_id`, `LEFT`);
     this.db.where(`${prop}='${value}'`);
-    this.db.order(this.orderby, this.sorting);
+    this.db.order(`tr.transaction_id`, `DESC`);
     this.db.limit(this.start, this.limit);
     connection.query(this.db.get(),
     function (error, results, fields) {
