@@ -50,11 +50,13 @@ ProductsModel.prototype.setSortingOrder = function(orderby, sorting) {
  */
 ProductsModel.prototype.getProducts = function(reply) {
     var select = `pr.product_id,pr.sku,pr.stock_status_id,pd.name,pd.description,pr.price,pr.image,pr.tax_class_id,`;
+    select    += `cg.name AS customer_group,`;
     select    += `tr.name AS tax_rate_name,tr.rate AS tax_rate,tr.type AS tax_rate_type,IF(pr.tax_class_id!=0, pr.price * tr.rate / 100, 0) AS tax`;
     this.db.select(select);
     this.db.from(`${this.dbprefix}product pr`);
     this.db.join(`${this.dbprefix}product_description pd ON pd.product_id=pr.product_id`);
     this.db.join(`${this.dbprefix}product_to_customer_group pc ON pc.product_id=pr.product_id`);
+    this.db.join(`${this.dbprefix}customer_group cg ON cg.customer_group_id=pc.customer_group_id`, `LEFT`);
     this.db.join(`${this.dbprefix}tax_rate_to_customer_group t2c ON t2c.customer_group_id=pc.customer_group_id`, `LEFT`);
     this.db.join(`${this.dbprefix}tax_rate tr ON tr.tax_rate_id=t2c.tax_rate_id`, `LEFT`);
     this.db.where(`pr.status = 1`);

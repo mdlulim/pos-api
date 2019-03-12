@@ -2,7 +2,7 @@
 
 const config           = require('../config');
 const MySQL            = require('mysql');
-// const bcrypt           = require('bcrypt');
+const bcrypt           = require('bcrypt');
 const generatePassword = require('password-generator');
 const createToken      = require('../util/token');
 const connection       = MySQL.createConnection({
@@ -304,44 +304,44 @@ UsersModel.prototype.login = function(username, password, reply) {
         if (error) {
             throw error;
         } else {
-            // var pwdRes = bcrypt.compareSync(password, results[0].password);
-            // if (pwdRes === true) {
-            //     var response = {
-            //         status: 200,
-            //         error: false,
-            //         data: {
-            //             user_id        : results[0].user_id,
-            //             user_group_id  : results[0].user_group_id,
-            //             username       : results[0].username,
-            //             password       : results[0].password,
-            //             firstname      : results[0].firstname,
-            //             lastname       : results[0].lastname,
-            //             email          : results[0].email,
-            //             image          : results[0].image,
-            //             code           : results[0].code,
-            //             status         : results[0].status,
-            //             date_added     : results[0].date_added,
-            //             change_password: results[0].prompt_change_password
-            //         },
-            //         auth: {
-            //             user_id : results[0].user_id,
-            //             token   : createToken({
-            //                 username : results[0].email,
-            //                 uid      : results[0].user_id, 
-            //                 admin    : results[0].user_group_id === 1
-            //             })
-            //         }
-            //     };
-            //     reply(response);
+            var pwdRes = bcrypt.compareSync(password, results[0].password);
+            if (pwdRes === true) {
+                var response = {
+                    status: 200,
+                    error: false,
+                    data: {
+                        user_id        : results[0].user_id,
+                        user_group_id  : results[0].user_group_id,
+                        username       : results[0].username,
+                        password       : results[0].password,
+                        firstname      : results[0].firstname,
+                        lastname       : results[0].lastname,
+                        email          : results[0].email,
+                        image          : results[0].image,
+                        code           : results[0].code,
+                        status         : results[0].status,
+                        date_added     : results[0].date_added,
+                        change_password: results[0].prompt_change_password
+                    },
+                    auth: {
+                        user_id : results[0].user_id,
+                        token   : createToken({
+                            username : results[0].email,
+                            uid      : results[0].user_id, 
+                            admin    : results[0].user_group_id === 1
+                        })
+                    }
+                };
+                reply(response);
 
-            // } else {
-            //     var response = {
-            //         status: 400,
-            //         error: false,
-            //         message: "Incorrect username and/or password"
-            //     }
-            //     reply(response);
-            // }
+            } else {
+                var response = {
+                    status: 400,
+                    error: false,
+                    message: "Incorrect username and/or password"
+                }
+                reply(response);
+            }
         }
     });
 };
