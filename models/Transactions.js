@@ -19,8 +19,8 @@ function TransactionsModel(database) {
     this.company_id = 0;
     this.start      = 0;
     this.limit      = 0;
-    this.orderby    = "";
-    this.sorting    = "";
+    this.orderby    = "tr.transaction_id";
+    this.sorting    = "DESC";
     this.dbprefix   = `${config.database.name}.${config.database.prefix}`;
 };
 
