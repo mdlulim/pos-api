@@ -116,7 +116,7 @@ exports.register = function(server, options, next) {
                 handler: usersController.changepassword,
                 auth: false,
                 validate: {
-                    payload: Joi.object().length(1).keys({
+                    payload: Joi.object().keys({
                         user_id: Joi.number().integer().required(),
                         old_password: Joi.string().min(6).max(60).required(),
                         new_password: Joi.string().min(6).max(60).required()

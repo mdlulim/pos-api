@@ -1,11 +1,10 @@
 'use strict';
 
-const config           = require('../config');
-const MySQL            = require('mysql');
-const bcrypt           = require('bcrypt');
-const generatePassword = require('password-generator');
-const createToken      = require('../util/token');
-const connection       = MySQL.createConnection({
+const config      = require('../config');
+const MySQL       = require('mysql');
+const bcrypt      = require('bcrypt');
+const createToken = require('../util/token');
+const connection  = MySQL.createConnection({
     host: config.database.host,
     user: config.database.user,
     password: config.database.pass,
@@ -241,40 +240,40 @@ UsersModel.prototype.changePassword = function(user, reply) {
             throw error;
         } else {
             if (results.length) {
-                // var pwdRes = bcrypt.compareSync(user.old_password, results[0].password);
-                // if (pwdRes === true) {
-                //     /** 
-                //      * Generate salt 
-                //      * Generate random password
-                //      * Create [password] hash (Password Encryption)
-                //      * Update user record with new password
-                //      * Send new password to user
-                //      */
-                //     var salt         = bcrypt.genSaltSync();
-                //     var encryptedPwd = bcrypt.hashSync(user.new_password, salt);
-                //     var set          = `salt='${salt}',password='${encryptedPwd}',date_modified=NOW()`;
-                //     var condition    = `user_id=${user.id}`;
-                //     connection.query(that.db.update(`${this.dbprefix}user`, set, condition),
-                //     function(error, results, fields) {
-                //         if (error) {
-                //             throw error;
-                //         } else {
-                //             var response = {
-                //                 status: 200,
-                //                 error: true,
-                //                 message: "Password successfully updated!"
-                //             };
-                //             reply(response);
-                //         }
-                //     });
-                // } else {
-                //     var response = {
-                //         status: 401,
-                //         error: false,
-                //         message: "Incorrect old password!"
-                //     }
-                //     reply(response);
-                // }
+                var pwdRes = bcrypt.compareSync(user.old_password, results[0].password);
+                if (pwdRes === true) {
+                    /** 
+                     * Generate salt 
+                     * Generate random password
+                     * Create [password] hash (Password Encryption)
+                     * Update user record with new password
+                     * Send new password to user
+                     */
+                    var salt         = bcrypt.genSaltSync();
+                    var encryptedPwd = bcrypt.hashSync(user.new_password, salt);
+                    var set          = `salt='${salt}',password='${encryptedPwd}',date_modified=NOW()`;
+                    var condition    = `user_id=${user.id}`;
+                    connection.query(that.db.update(`${this.dbprefix}user`, set, condition),
+                    function(error, results, fields) {
+                        if (error) {
+                            throw error;
+                        } else {
+                            var response = {
+                                status: 200,
+                                error: true,
+                                message: "Password successfully updated!"
+                            };
+                            reply(response);
+                        }
+                    });
+                } else {
+                    var response = {
+                        status: 401,
+                        error: false,
+                        message: "Incorrect old password!"
+                    }
+                    reply(response);
+                }
             } else {
                 var response = {
                     status: 400,
