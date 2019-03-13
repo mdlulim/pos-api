@@ -51,7 +51,7 @@ ProductsModel.prototype.setSortingOrder = function(orderby, sorting) {
 ProductsModel.prototype.getProducts = function(reply) {
     var select = `pr.product_id,pr.sku,pr.stock_status_id,pd.name,pd.description,pr.price,pr.image,pr.tax_class_id,`;
     select    += `cg.name AS customer_group,`;
-    select    += `tr.name AS tax_rate_name,tr.rate AS tax_rate,tr.type AS tax_rate_type,IF(pr.tax_class_id!=0, pr.price * tr.rate / 100, 0) AS tax,`;
+    select    += `tr.name AS tax_rate_name,tr.rate AS tax_rate,tr.type AS tax_rate_type,IF(pr.tax_class_id!=0, pr.price * tr.rate / 100, 0) AS tax,IF(pr.tax_class_id=0,'No','Yes') AS taxable,`;
     select    += `(SELECT date_added FROM ${this.dbprefix}transaction_product tp LEFT JOIN ${this.dbprefix}transaction ts ON ts.transaction_id=tp.transaction_id WHERE tp.product_id = pr.product_id ORDER BY ts.transaction_id DESC LIMIT 0,1) AS last_transaction_date`;
     this.db.select(select);
     this.db.from(`${this.dbprefix}product pr`);
