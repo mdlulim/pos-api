@@ -80,7 +80,8 @@ TransactionsModel.prototype.getTransactions = function(reply) {
  */
 TransactionsModel.prototype.findTransactionByProperty = function(prop, value, reply) {
     var that = this;
-    var select = `tr.*,tp.payment_method,tp.payment_code,tp.payment_status_id`;
+    var select = `tr.*,tp.payment_method,tp.payment_code,tp.payment_status_id,`;
+    select    += `vh.vehicle_id,vh.driver_name,vh.make,vh.model,vh.reg_number,vh.drivers_license,vh.colour,vh.style,vh.vin_number`;
     var where;
     if (prop === 'invoice_number') {
         if (value.indexOf('ewl-') > -1) {
@@ -98,6 +99,8 @@ TransactionsModel.prototype.findTransactionByProperty = function(prop, value, re
     this.db.select(select);
     this.db.from(`${this.dbprefix}transaction tr`);
     this.db.join(`${this.dbprefix}transaction_payment tp ON tp.transaction_id = tr.transaction_id`, `LEFT`);
+    this.db.join(`${this.dbprefix}transaction_to_vehicle tv ON tv.transaction_id = tr.transaction_id`, `LEFT`);
+    this.db.join(`${this.dbprefix}vehicle vh ON vh.vehicle_id = tv.vehicle_id`, `LEFT`);
     this.db.where(where);
     this.db.order(`tr.transaction_id`, `DESC`);
     this.db.limit(this.start, this.limit);
