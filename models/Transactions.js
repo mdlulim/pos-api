@@ -81,7 +81,7 @@ TransactionsModel.prototype.getTransactions = function(reply) {
 TransactionsModel.prototype.findTransactionByProperty = function(prop, value, reply) {
     var that = this;
     var select = `tr.*,tp.payment_method,tp.payment_code,tp.payment_status_id,`;
-    select    += `cs.id_number,cg.name AS customer_group,CONCAT(usr.firstname,' ',usr.lastname) AS user_name,`;
+    select    += `cs.id_number,cg.name AS customer_group,CONCAT(usr.firstname,' ',usr.lastname) AS user_name,tm.description AS terminal,tm.gate,`;
     select    += `vh.vehicle_id,vh.driver_name,vh.make,vh.model,vh.reg_number,vh.drivers_license,vh.colour,vh.style,vh.vin_number`;
     var where;
     if (prop === 'invoice_number') {
@@ -102,6 +102,7 @@ TransactionsModel.prototype.findTransactionByProperty = function(prop, value, re
     this.db.join(`${this.dbprefix}transaction_payment tp ON tp.transaction_id = tr.transaction_id`, `LEFT`);
     this.db.join(`${this.dbprefix}customer cs ON cs.customer_id = tr.customer_id`, `LEFT`);
     this.db.join(`${this.dbprefix}user usr ON usr.user_id = tr.user_id`, `LEFT`);
+    this.db.join(`${this.dbprefix}terminal tm ON tm.device_ip = tr.ip`, `LEFT`);
     this.db.join(`${this.dbprefix}customer_group cg ON cg.customer_group_id = tr.customer_group_id`, `LEFT`);
     this.db.join(`${this.dbprefix}transaction_to_vehicle tv ON tv.transaction_id = tr.transaction_id`, `LEFT`);
     this.db.join(`${this.dbprefix}vehicle vh ON vh.vehicle_id = tv.vehicle_id`, `LEFT`);
