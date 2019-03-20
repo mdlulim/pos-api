@@ -215,14 +215,23 @@ TransactionsModel.prototype.storeTransaction = function(data, reply) {
                                     if (error) {
                                         throw error;
                                     } else {
-                                        var response = {
-                                            status: 200,
-                                            error: false,
-                                            data: {
-                                                transaction_id: transactionId
+                                        var columns = `transaction_id,vehicle_id`;
+                                        var values  = `${transactionId},${data.vehicle.vehicle_id}`;;
+                                        connection.query(that.db.insert(`${that.dbprefix}transaction_to_vehicle`, columns, values),
+                                        function (error, results, fields) {
+                                            if (error) {
+                                                throw error;
+                                            } else {
+                                                var response = {
+                                                    status: 200,
+                                                    error: false,
+                                                    data: {
+                                                        transaction_id: transactionId
+                                                    }
+                                                };
+                                                reply(response);
                                             }
-                                        };
-                                        reply(response);
+                                        });
                                     }
                                 });
                             }
