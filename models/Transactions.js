@@ -81,7 +81,7 @@ TransactionsModel.prototype.getTransactions = function(reply) {
 TransactionsModel.prototype.findTransactionByProperty = function(prop, value, reply) {
     var that = this;
     var select = `tr.*,tp.payment_method,tp.payment_code,tp.payment_status_id,`;
-    select    += `cs.id_number,cg.name AS customer_group,CONCAT(usr.firstname,' ',usr.lastname) AS user_name,tm.description AS terminal,tm.gate,`;
+    select    += `cs.id_number,cs.firearm,cg.name AS customer_group,CONCAT(usr.firstname,' ',usr.lastname) AS user_name,tm.description AS terminal,tm.gate,`;
     select    += `vh.vehicle_id,vh.driver_name,vh.make,vh.model,vh.reg_number,vh.drivers_license,vh.colour,vh.style,vh.vin_number`;
     var where;
     if (prop === 'invoice_number') {
