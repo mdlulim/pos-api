@@ -184,8 +184,8 @@ CustomersModel.prototype.getCustomerVehicles = function(id, reply) {
  */
 CustomersModel.prototype.addCustomer = function(customer, reply) {
     var fax      = (customer.fax == 'undefined') ? '' : customer.fax;
-    var columns  = `customer_group_id,language_id,firstname,lastname,email,telephone,fax,id_type,id_number,date_added`;
-    var values   = `${customer.type},1,'${customer.firstname}','${customer.lastname}','${customer.email}','${customer.telephone}','${fax}','${customer.id_type}','${customer.id_number}', NOW()`;
+    var columns  = `customer_group_id,language_id,firstname,lastname,email,telephone,fax,id_type,id_number,firearm,date_added`;
+    var values   = `${customer.type},1,'${customer.firstname}','${customer.lastname}','${customer.email}','${customer.telephone}','${fax}','${customer.id_type}','${customer.id_number}','${customer.firearm}',NOW()`;
     connection.query(this.db.insert(`${this.dbprefix}customer`, columns, values),
     function (error, results, fields) {
         if (error) {

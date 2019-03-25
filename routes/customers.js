@@ -143,7 +143,8 @@ exports.register = function(server, options, next) {
                         telephone   : Joi.string().required(),
                         fax         : Joi.string().allow('').allow(null).optional(),
                         id_type     : Joi.string().required(),
-                        id_number   : Joi.string().required()
+                        id_number   : Joi.string().required(),
+                        firearm     : Joi.string().required()
                     })
                 }
             }
