@@ -336,7 +336,7 @@ UsersModel.prototype.login = function(username, password, reply) {
 
                 } else {
                     var response = {
-                        status: 200,
+                        status: 402,
                         error: false,
                         message: "Incorrect username and/or password"
                     }
@@ -344,7 +344,7 @@ UsersModel.prototype.login = function(username, password, reply) {
                 }
             } else {
                 var response = {
-                    status: 200,
+                    status: 401,
                     error: false,
                     message: "User does not exist!"
                 }
