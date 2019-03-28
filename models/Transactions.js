@@ -230,14 +230,7 @@ TransactionsModel.prototype.storeTransaction = function(data, reply) {
                                             if (error) {
                                                 throw error;
                                             } else {
-                                                var response = {
-                                                    status: 200,
-                                                    error: false,
-                                                    data: {
-                                                        transaction_id: transactionId
-                                                    }
-                                                };
-                                                reply(response);
+                                                that.getTransaction(transactionId, reply);
                                             }
                                         });
                                     }
