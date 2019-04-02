@@ -121,7 +121,7 @@ TransactionsModel.prototype.findTransactionByProperty = function(prop, value, re
                 transactions: results
             };
 
-            if (prop === 'tr.transaction_id') {
+            if (prop === 'tr.transaction_id' || prop === 'invoice_number') {
                 // get transaction products items
                 that.db.select(`tp.*`);
                 that.db.from(`${that.dbprefix}transaction_product tp`);
