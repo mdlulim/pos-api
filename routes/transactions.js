@@ -81,6 +81,7 @@ exports.register = function(server, options, next) {
                         totals: Joi.object().required(),
                         user_id: Joi.number().integer().required(),
                         payment_details: Joi.object().required(),
+                        location: Joi.string().required(),
                         comment: Joi.string().allow('').allow(null).optional()
                     })
                 }
