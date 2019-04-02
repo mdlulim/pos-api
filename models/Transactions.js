@@ -125,7 +125,7 @@ TransactionsModel.prototype.findTransactionByProperty = function(prop, value, re
                 // get transaction products items
                 that.db.select(`tp.*`);
                 that.db.from(`${that.dbprefix}transaction_product tp`);
-                that.db.where(`tp.transaction_id='${value}'`);
+                that.db.where(`tp.transaction_id=${results[0].transaction_id}`);
                 connection.query(that.db.get(),
                 function (error, results, fields) {
                     if (error) {
