@@ -84,8 +84,9 @@ ReportsModel.prototype.getReportById = function(id, reply) {
         } else {
             if (results.length) {
                 if (results[0].sql.length > 0) {
+                    var report= results[0];
                     var query = that.getQuery(results[0].sql);
-                    query = that.str_replace(query, `<filters>`, `WHERE DATE_FORMAT(tr.date_added,"%Y-%m-%d")>=DATE_FORMAT('${that.filters.start_date}',"%Y-%m-%d") AND DATE_FORMAT(tr.date_added,"%Y-%m-%d")<=DATE_FORMAT('${that.filters.end_date}',"%Y-%m-%d")`);
+                    query     = that.str_replace(query, `<filters>`, `WHERE DATE_FORMAT(tr.date_added,"%Y-%m-%d")>=DATE_FORMAT('${that.filters.start_date}',"%Y-%m-%d") AND DATE_FORMAT(tr.date_added,"%Y-%m-%d")<=DATE_FORMAT('${that.filters.end_date}',"%Y-%m-%d")`);
                     that.db.set(query);
                     connection.query(that.db.get(),
                     function (error, results, fields) {
@@ -95,7 +96,8 @@ ReportsModel.prototype.getReportById = function(id, reply) {
                             var response = {
                                 status: 200,
                                 error: false,
-                                data: results
+                                data: results,
+                                report_details: report
                             };
                             reply(response);
                         }
